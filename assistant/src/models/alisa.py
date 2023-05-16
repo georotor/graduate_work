@@ -35,6 +35,12 @@ class AliceRequest(AliceaBaseModel):
 
         return None
 
+    def get_intent(self) -> str | None:
+        if self.request.nlu.intents.keys():
+            return next(iter(self.request.nlu.intents))
+
+        return None
+
 
 class Response(BaseModel):
     text: str

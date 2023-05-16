@@ -30,10 +30,10 @@ class BaseDialog:
         return alisa_response
 
     async def handler(self, request: AliceRequest):
-        if request.request.nlu.intents.keys():
-            command = self.commands.get(next(iter(request.request.nlu.intents)))
-            if command:
-                return await command(request)
+        intent = request.get_intent()
+        command = self.commands.get(intent)
+        if command:
+            return await command(request)
 
         return await self.error(request)
 
