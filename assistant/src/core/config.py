@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     project_name: str = 'assistant'
 
+    nlu_model_parse: str = 'http://localhost:5005/model/parse'
+
     logging: Logging = Logging()
 
     class Config:
