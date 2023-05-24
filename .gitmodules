@@ -1,3 +1,6 @@
 [submodule "async_api"]
 	path = async_api
 	url = git@github.com:georotor/async_api.git
+[submodule "etl_movies"]
+	path = etl_movies
+	url = git@github.com:georotor/etl_movies.git
