@@ -6,7 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import alisa
+from api.v1 import alisa, marusia
 from core.config import settings
 from core.logger import LOGGING
 
@@ -21,6 +21,7 @@ app = FastAPI(
 
 
 app.include_router(alisa.router, prefix='/api/v1/alisa', tags=['alisa'])
+app.include_router(marusia.router, prefix='/api/v1/marusia', tags=['marusia'])
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=False)
