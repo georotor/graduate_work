@@ -30,8 +30,7 @@ class BaseDialog:
         return alisa_response
 
     async def handler(self, request: AssistRequest):
-        intent = await request.get_intent()
-        command = self.commands.get(intent)
+        command = self.commands.get(request.intent)
         if command:
             return await command(request)
 
@@ -64,7 +63,7 @@ class Welcome(BaseDialog):
 
     async def film_length(self, request: AssistRequest):
         """Обработка запроса 'Сколько длится фильм'."""
-        film = await request.get_context("film")
+        film = await request.get_entity("film")
         if not film:
             film = request.state.session.get("film")
 
@@ -81,7 +80,7 @@ class Welcome(BaseDialog):
 
     async def film_director(self, request: AssistRequest):
         """Обработка запроса 'Кто режиссер'."""
-        film = await request.get_context("film")
+        film = await request.get_entity("film")
         if not film:
             film = request.state.session.get("film")
 

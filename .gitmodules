@@ -1,0 +1,3 @@
+[submodule "async_api"]
+	path = async_api
+	url = git@github.com:georotor/async_api.git

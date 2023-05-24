@@ -17,19 +17,7 @@ router = APIRouter()
     description='Обработка запросов от Маруси',
 )
 async def alisa_handler(
-        request: AssistRequest,
-        assist: Assist = Depends(get_assist)
+    request: AssistRequest,
+    assist: Assist = Depends(get_assist)
 ):
-
-    # data = await request.json()
-    print(request)
-
     return await assist.handler(request=request)
-
-    # response = AssistResponse(
-    #     **request.dict(),
-    #     response={'text': 'Ку-ку'}
-    # )
-    #
-    # return response
-
