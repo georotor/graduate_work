@@ -16,6 +16,11 @@ class Settings(BaseSettings):
 
     project_name: str = 'assistant'
 
+    redis_host: str = 'localhost'
+    redis_port: int = 6379
+
+    cache_expire: int = 1200
+
     nlu_model_parse: str = 'http://localhost:5005/model/parse'
 
     content_films_search: str = 'http://localhost/api/v1/films/search'

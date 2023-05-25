@@ -4,6 +4,8 @@ import logging
 from functools import lru_cache
 from http import HTTPStatus
 
+from fastapi_cache.decorator import cache
+
 from .abstarct import AbstractIntents
 from core.config import settings
 from models.intents import Intent
@@ -19,14 +21,8 @@ class IntentParse(AbstractIntents):
 
     async def parse(self, text: str) -> Intent | None:
         """Поиск намерения и сущности в сообщении."""
-        nlu_data = None
         json = {"text": text}
-
-        async with aiohttp.ClientSession() as client:
-            try:
-                nlu_data = await self._fetch(client, json)
-            except aiohttp.ClientError as e:
-                logger.error("NLU error: {0}".format(e))
+        nlu_data = await self._fetch(self.url, json)
 
         if nlu_data:
             return Intent(
@@ -34,18 +30,28 @@ class IntentParse(AbstractIntents):
                 entities=nlu_data["entities"]
             )
 
-    async def _fetch(self, client: aiohttp.ClientSession, json: dict) -> dict | None:
-        """Отправка запроса на выделение намерения."""
-        async with client.post(self.url, json=json) as response:
-            if response.status == HTTPStatus.OK:
-                nlu_data = await response.json()
-                logger.info("Get data from NLU {0}".format(nlu_data))
-                return nlu_data
+        return None
 
-            logger.error("Not get data from NLU for command {0}, {1}".format(
-                json,
-                await response.text()
-            ))
+    @staticmethod
+    @cache()
+    async def _fetch(url: str, json: dict) -> dict | None:
+        """Отправка запроса на выделение намерения с кэшированием."""
+        async with aiohttp.ClientSession() as client:
+            try:
+                async with client.post(url, json=json) as response:
+                    if response.status == HTTPStatus.OK:
+                        nlu_data = await response.json()
+                        logger.info("Get data from NLU {0}".format(nlu_data))
+                        return nlu_data
+
+                    logger.error("Not get data from NLU for command {0}, {1}".format(
+                        json,
+                        await response.text()
+                    ))
+            except aiohttp.ClientError as e:
+                logger.error("NLU error: {0}".format(e))
+
+        return None
 
 
 @lru_cache
