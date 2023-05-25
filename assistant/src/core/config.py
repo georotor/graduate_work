@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     nlu_model_parse: str = 'http://localhost:5005/model/parse'
 
+    content_films_search: str = 'http://localhost/api/v1/films/search'
+    content_film_get: str = 'http://localhost/api/v1/films/'
+
     logging: Logging = Logging()
 
     class Config:
