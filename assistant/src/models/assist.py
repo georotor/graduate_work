@@ -22,8 +22,8 @@ class AssistRequest(AssistBaseModel):
 
     async def get_entity(self, entity: str) -> str | None:
         for item in self.entities:
-            if item.get("entity") == entity:
-                return item.get("value")
+            if item.entity == entity:
+                return item.value
 
         return None
 

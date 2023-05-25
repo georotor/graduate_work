@@ -16,7 +16,7 @@ class BaseDialog:
 
     async def make_response(self, request: AssistRequest, text: str, state: dict | None = None) -> AssistResponse:
         state = state or {}
-        response = Response(text=text)
+        response = Response(text=text.strip())
 
         alisa_response = AssistResponse(
             **request.dict(),
