@@ -6,8 +6,8 @@ from .abstract import AbstractAssist
 from .dialogs import dialogs
 from core.config import settings
 from models.assist import AssistRequest, AssistResponse
-from services.intents.abstarct import AbstractIntents
-from services.intents import IntentParse
+from services.content import AbstractContent, Content
+from services.intents import AbstractIntents, IntentParse
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 class Assist(AbstractAssist):
     """Реализация AbstractAssistant для Алисы и Маруси."""
 
-    def __init__(self, intent_parse: AbstractIntents):
+    def __init__(self, intent_parse: AbstractIntents, content: AbstractContent):
         self.intent_parse = intent_parse
+        self.content = content
 
     async def handler(self, request: AssistRequest) -> AssistResponse:
         """Обработка входящего сообщения от ассистента."""
@@ -24,7 +25,7 @@ class Assist(AbstractAssist):
         await self._get_intent(request)
         current_dialog = request.state.session.get("dialog", "Welcome")
 
-        dialog = dialogs.get(current_dialog)()
+        dialog = dialogs.get(current_dialog)(content=self.content)
         response = await dialog.handler(request)
         logger.info("Send response {0}".format(response))
 
@@ -45,4 +46,6 @@ class Assist(AbstractAssist):
 def get_assist() -> AbstractAssist:
     """DI для FastAPI. Получаем менеджер для ассистента."""
     intent_parse = IntentParse(url=settings.nlu_model_parse)
-    return Assist(intent_parse=intent_parse)
+    content = Content()
+
+    return Assist(intent_parse=intent_parse, content=content)

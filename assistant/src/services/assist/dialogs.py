@@ -3,12 +3,16 @@ import sys
 
 from .messages import Message
 from models.assist import AssistRequest, AssistResponse, Response
+from services.content import AbstractContent
 
 
 class BaseDialog:
-    """Базовый класс диалога с Алисой."""
+    """Базовый класс диалога с помощником."""
 
     commands: {}
+
+    def __init__(self, content: AbstractContent):
+        self.content = content
 
     @classmethod
     def get_name(cls):
@@ -41,14 +45,15 @@ class BaseDialog:
 
 
 class Welcome(BaseDialog):
-    """Начальный диалог с Алисой."""
+    """Начальный диалог с помощником."""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.commands = {
             "help": self.help,
             "film_length": self.film_length,
             "film_director": self.film_director,
         }
+        super().__init__(*args, **kwargs)
 
     async def handler(self, request: AssistRequest) -> AssistResponse:
         """Если это новая сессия отправляем приветствие, иначе обрабатываем сообщение."""
@@ -63,36 +68,80 @@ class Welcome(BaseDialog):
 
     async def film_length(self, request: AssistRequest):
         """Обработка запроса 'Сколько длится фильм'."""
-        film = await request.get_entity("film")
-        if not film:
-            film = request.state.session.get("film")
+        film_name = await request.get_entity("film")
+        if not film_name:
+            film_name = request.state.session.get("film")
 
-        if not film:
+        if not film_name:
             return await self.error(request)
 
-        text = "2 часа"
+        film_data = await self.content.get_film(film_name)
+        if not film_data:
+            return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
+
+        if not bool(film_data.length):
+            return await self.make_response(
+                request=request,
+                text=Message.FILM_NOT_DATA.format(film_data.title),
+                state={"film": film_name},
+            )
+
+        length = []
+        hours = int(film_data.length/60/60)
+        if hours > 0:
+            length.append(await self._film_length_format(hours, 'hours'))
+
+        minutes = int(film_data.length/60 - hours*60)
+        if minutes > 0:
+            length.append(await self._film_length_format(minutes, 'minutes'))
 
         return await self.make_response(
             request=request,
-            text=text,
-            state={"film": film},
+            text=Message.FILM_LENGTH.format(film_data.title, ' '.join(length)),
+            state={"film": film_name},
         )
+
+    @staticmethod
+    async def _film_length_format(numeric: int, type_time: str = 'minutes') -> str:
+        formats = {
+            "minutes": ((5, "{0} минут"), (2, "{0} минуты"), (1, "{0} минута")),
+            "hours": ((5, "{0} часов"), (2, "{0} часа"), (1, "{0} час")),
+        }
+        for number, template in formats[type_time]:
+            if numeric >= number:
+                return template.format(numeric)
 
     async def film_director(self, request: AssistRequest):
         """Обработка запроса 'Кто режиссер'."""
-        film = await request.get_entity("film")
-        if not film:
-            film = request.state.session.get("film")
+        film_name = await request.get_entity("film")
+        if not film_name:
+            film_name = request.state.session.get("film")
 
-        if not film:
+        if not film_name:
             return await self.error(request)
 
-        text = "Братья Вачовски, а ныне сёстры"
+        film_data = await self.content.get_film(film_name)
+        if not film_data:
+            return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
+
+        if not film_data.directors:
+            return await self.make_response(
+                request=request,
+                text=Message.FILM_NOT_DATA.format(film_data.title),
+                state={"film": film_name},
+            )
+
+        names = [film.name for film in film_data.directors]
+
+        text = Message.FILM_DIRECTOR.format(film_data.title, names[0])
+        if len(names) > 1:
+            names_text = "{0} и {1}".format(", ".join(names[0:-1]), names[-1])
+            text = Message.FILM_DIRECTORS.format(film_data.title, names_text)
 
         return await self.make_response(
             request=request,
             text=text,
-            state={"film": film},
+            state={"film": film_name},
         )
 
 
