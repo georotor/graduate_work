@@ -13,4 +13,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Test
-        run: docker-compose -f assistant/src/tests/functional/docker-compose.yml up --build tests
+        run: git submodule update --init && docker-compose -f assistant/src/tests/functional/docker-compose.yml up --build tests
