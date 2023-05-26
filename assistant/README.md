@@ -17,7 +17,7 @@ root:
     кто режиссер (фильма)? ($Film)*
 
 slots:
-    what:
+    film:
         source: $Film
 
 $Film:
@@ -30,7 +30,7 @@ root:
     сколько длится (фильм)? ($Film)*
 
 slots:
-    what:
+    film:
         source: $Film
 
 $Film:
