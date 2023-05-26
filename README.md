@@ -36,7 +36,8 @@ https://github.com/georotor/graduate_work
 
 После старта будет доступен [Swagger API](http://127.0.0.1/api/openapi).
 
-
-
-
-
+## Тестирование
+```
+cd assistant/src/tests/functional
+docker-compose -f assistant/src/tests/functional/docker-compose.yml up --build tests
+```

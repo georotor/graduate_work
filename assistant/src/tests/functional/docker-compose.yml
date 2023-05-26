@@ -1,0 +1,173 @@
+version: '3'
+services:
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=123qwe
+      - POSTGRES_USER=app
+      - POSTGRES_DB=movies_database
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    volumes:
+      - ../../../../async_api/dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U app -d movies_database'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+  elastic:
+    image: elasticsearch:7.17.8
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1000m -Xmx1000m
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I http://localhost:9200 | grep -q 'HTTP/1.1 200 OK'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+  redis:
+    image: redis:7.0.7
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+  etl:
+    build: ../../../../etl_movies
+    environment:
+      - POSTGRES_PASSWORD=123qwe
+      - POSTGRES_USER=app
+      - POSTGRES_DB=movies_database
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - ES_HOST=http://elastic:9200
+      - INTERVAL=5m
+      - AUTH_URL=http://127.0.0.1:5000/api/v1/user/is_authenticated
+    depends_on:
+      db:
+        condition: service_healthy
+      elastic:
+        condition: service_healthy
+  api:
+    build: ../../../../async_api
+    environment:
+      - REDIS_HOST=redis
+      - ELASTIC_HOST=elastic
+    expose:
+      - 8000
+    depends_on:
+      elastic:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  nlu:
+    build: ../../../../nlu_rasa
+    ports:
+      - 5005:5005
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5005/ | grep -q 'Hello from Rasa'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+  assist:
+    build: ../../../../assistant
+    image: assist-image
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_EXPIRE=1200
+      - NLU_MODEL_PARSE=http://nlu:5005/model/parse
+      - CONTENT_FILMS_SEARCH=http://api:8000/api/v1/films/search
+      - CONTENT_FILM_GET=http://api:8000/api/v1/films/
+    ports:
+      - 8000:8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I http://localhost:8000/api/openapi | grep -q 'HTTP/1.1 200 OK'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+    depends_on:
+      api:
+        condition: service_started
+      etl:
+        condition: service_started
+      nlu:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  tests:
+    image: assist-image
+    environment:
+      - SERVICE_URL=http://assist:8000
+    entrypoint: >
+      sh -c "pip3 install -r tests/functional/requirements.txt
+      && python3 -m pytest tests/functional/src"
+
+    depends_on:
+      assist:
+        condition: service_healthy
+volumes:
+  elastic_data:
+  postgres_data:
+
+
+
+#  mongodb:
+#    image: mongo:5.0.16
+#    environment:
+#      MONGO_INITDB_DATABASE: notifications
+#    volumes:
+#        - ../../../../mongo/init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+#    ports:
+#      - 27017:27017
+#    healthcheck:
+#      test: echo 'db.runCommand("ping").ok' | mongosh mongodb:27017/test --quiet
+#      interval: 2s
+#      timeout: 5s
+#      retries: 120
+#
+#  rabbitmq:
+#    image: rabbitmq:3.9.29-management
+#    volumes:
+#      - ../../../../rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+#      - ../../../../rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+#    ports:
+#      - 5672:5672
+#      - 15672:15672
+#    healthcheck:
+#      test: rabbitmq-diagnostics check_port_connectivity
+#      interval: 2s
+#      timeout: 5s
+#      retries: 120
+#
+#  api:
+#    build: ../../../.
+#    image: api-image
+#    environment:
+#      - MONGO_URI=mongodb://mongodb:27017/
+#      - RABBIT_URI=amqp://guest:guest@rabbitmq/
+#    expose:
+#      - 8000
+#    ports:
+#      - 8000:8000
+#    healthcheck:
+#      test: curl -s -I http://localhost:8000/api/openapi | grep -q 'HTTP/1.1 200 OK'
+#      interval: 2s
+#      timeout: 5s
+#      retries: 120
+#    depends_on:
+#      mongodb:
+#        condition: service_healthy
+#      rabbitmq:
+#        condition: service_healthy
+#
+
