@@ -21,6 +21,8 @@ https://github.com/georotor/graduate_work
 
 ## Запуск сервиса
 
+`git clone --recurse-submodules git@github.com:georotor/graduate_work.git`
+
 Для запуска потребуется 3 файла с переменными окружения:
 
 - `.env.assist` с настройками для API: 
