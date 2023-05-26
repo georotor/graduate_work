@@ -26,6 +26,7 @@ class Assist(AbstractAssist):
 
         await self._get_intent(request)
         current_dialog = request.state.session.get("dialog", "Welcome")
+        logger.info("Dialog {0}".format(current_dialog))
 
         dialog = dialogs.get(current_dialog)(content=self.content)
         response = await dialog.handler(request)
@@ -57,7 +58,7 @@ class Assist(AbstractAssist):
         request.entities = entities
 
     async def _get_intent_from_model(self, request: AssistRequest):
-        """Выделение намерения из текстового сообщения с использованием предобученной модели."""
+        """Выделение намерения из текстового сообщения."""
         if not request.request.command:
             return
 
