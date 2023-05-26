@@ -1,3 +1,5 @@
+"""Модуль получения данных о кинопроизведениях."""
+
 import aiohttp
 import logging
 from dataclasses import dataclass
@@ -20,8 +22,11 @@ class HTTPResponse:
 
 
 class Content(AbstractContent):
+    """Интерфейс получения данных о кинопроизведениях."""
+
     async def get_film(self, name: str) -> Film | None:
-        films = await self.search_film(name)
+        """Обработка запроса на получение информации."""
+        films = await self.search_films(name)
 
         if not films:
             return None
@@ -32,16 +37,17 @@ class Content(AbstractContent):
         if http_result and http_result.status == HTTPStatus.OK:
             return Film(**http_result.body)
 
+        logger.error("Error get film {0} {1}".format(name, http_result))
         return None
 
-    async def search_film(self, name: str) -> list[dict]:
-        films = []
-
+    async def search_films(self, name: str) -> list[dict]:
+        """Поиск фильмов по названию."""
         http_result = await self.fetch_data(url=settings.content_films_search, params={"query": name})
         if http_result and http_result.status == HTTPStatus.OK:
-            films = http_result.body.get("results", [])
+            return http_result.body.get("results", [])
 
-        return films
+        logger.error("Error search films {0} {1}".format(name, http_result))
+        return []
 
     async def fetch_data(self, url: str, params: dict | None = None,
                      json: dict | None = None, method: str = 'GET') -> HTTPResponse | None:

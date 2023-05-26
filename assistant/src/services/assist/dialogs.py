@@ -1,9 +1,12 @@
 import inspect
+import logging
 import sys
 
 from .messages import Message
 from models.assist import AssistRequest, AssistResponse, Response
 from services.content import AbstractContent
+
+logger = logging.getLogger(__name__)
 
 
 class BaseDialog:
@@ -19,6 +22,7 @@ class BaseDialog:
         return cls.__name__
 
     async def make_response(self, request: AssistRequest, text: str, state: dict | None = None) -> AssistResponse:
+        """Подготовка ответа на запрос."""
         state = state or {}
         response = Response(text=text.strip())
 
@@ -34,6 +38,7 @@ class BaseDialog:
         return alisa_response
 
     async def handler(self, request: AssistRequest):
+        """Обработка входящего запроса."""
         command = self.commands.get(request.intent)
         if command:
             return await command(request)
@@ -41,6 +46,7 @@ class BaseDialog:
         return await self.error(request)
 
     async def error(self, request: AssistRequest):
+        """Отправка сообщения об ошибке."""
         return await self.make_response(request, Message.ERROR)
 
 
@@ -73,13 +79,18 @@ class Welcome(BaseDialog):
             film_name = request.state.session.get("film")
 
         if not film_name:
+            logger.error("Not found film name in dialog film_length {0}".format(request))
             return await self.error(request)
+
+        logger.info("Find film name {0} in request {1}".format(film_name, request))
 
         film_data = await self.content.get_film(film_name)
         if not film_data:
+            logger.warning("Not found film: {0}".format(film_name))
             return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
 
         if not bool(film_data.length):
+            logger.warning("Not found length for film {0} in data {1}".format(film_name, film_data))
             return await self.make_response(
                 request=request,
                 text=Message.FILM_NOT_DATA.format(film_data.title),
@@ -103,6 +114,7 @@ class Welcome(BaseDialog):
 
     @staticmethod
     async def _film_length_format(numeric: int, type_time: str = 'minutes') -> str:
+        """Форматирование длительность кинопроизведения."""
         formats = {
             "minutes": ((5, "{0} минут"), (2, "{0} минуты"), (1, "{0} минута")),
             "hours": ((5, "{0} часов"), (2, "{0} часа"), (1, "{0} час")),
@@ -118,13 +130,16 @@ class Welcome(BaseDialog):
             film_name = request.state.session.get("film")
 
         if not film_name:
+            logger.error("Not found film name in dialog film_director {0}".format(request))
             return await self.error(request)
 
         film_data = await self.content.get_film(film_name)
         if not film_data:
+            logger.warning("Not found film: {0}".format(film_name))
             return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
 
         if not film_data.directors:
+            logger.warning("Not found directors for film {0} in data {1}".format(film_name, film_data))
             return await self.make_response(
                 request=request,
                 text=Message.FILM_NOT_DATA.format(film_data.title),
