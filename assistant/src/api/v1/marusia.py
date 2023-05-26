@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends
 
 from models.assist import AssistRequest, AssistResponse
 from services.assist import Assist, get_assist
@@ -15,6 +15,7 @@ router = APIRouter()
     '/',
     summary='Webhook для Маруси',
     description='Обработка запросов от Маруси',
+    response_model=AssistResponse,
 )
 async def alisa_handler(
     request: AssistRequest,

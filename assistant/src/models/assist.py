@@ -6,8 +6,15 @@ class AssistBaseModel(BaseModel):
     session: dict
 
 
+class NLU(BaseModel):
+    tokens: list = []
+    entities: list = []
+    intents: dict = {}
+
+
 class Request(BaseModel):
     command: str
+    nlu: NLU
 
 
 class State(BaseModel):
