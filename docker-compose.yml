@@ -59,6 +59,34 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+  nlu:
+    build: ./nlu_rasa
+    expose:
+      - 5005
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5005/ | grep -q 'Hello from Rasa'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+  assist:
+    build: ./assistant
+    environment:
+      - REDIS_HOST=redis
+      - NLU_MODEL_PARSE=http://nlu:5005/model/parse
+      - CONTENT_FILMS_SEARCH=http://api:8000/api/v1/films/search
+      - CONTENT_FILM_GET=http://api:8000/api/v1/films/
+    expose:
+      - 8000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -I http://localhost:8000/api/openapi | grep -q 'HTTP/1.1 200 OK'"]
+      interval: 2s
+      timeout: 5s
+      retries: 120
+    depends_on:
+      nlu:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   nginx:
     image: nginx:1.23.2
     volumes:
@@ -67,7 +95,8 @@ services:
     ports:
       - 80:80
     depends_on:
-      - api
+      assist:
+        condition: service_healthy
 volumes:
   elastic_data:
   postgres_data:
