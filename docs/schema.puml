@@ -1,0 +1,24 @@
+@startuml
+skinparam componentStyle uml2
+
+actor Assistant as Assistant
+
+package "Assistant service" as Assist {
+    component "[Nginx]" as Nginx <<Web>>
+    component "[FastAPI]" as AssistApi <<Assistant API>>
+
+    component "[Rasa NLU]" as NLUApi <<Intent parse>>
+    database "[Redis]" as Redis <<Storage>>
+
+    package AsyncAPI {
+    }
+
+    Nginx -> AssistApi
+    AssistApi --> NLUApi : Выделение намерений \n из запроса
+    Redis <- AssistApi : Кэш запросов в \n"[Rasa NLU]" и AsyncAPI
+}
+
+AssistApi --> AsyncAPI : Поиск информации \nо фильме
+Nginx <-- Assistant
+
+@enduml
