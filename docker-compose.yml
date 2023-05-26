@@ -40,7 +40,7 @@ services:
   etl:
     build: ./etl_movies
     env_file:
-      - ./.env
+      - ./.env.etl
       - ./.env.db
     depends_on:
       db:
@@ -70,11 +70,8 @@ services:
       retries: 120
   assist:
     build: ./assistant
-    environment:
-      - REDIS_HOST=redis
-      - NLU_MODEL_PARSE=http://nlu:5005/model/parse
-      - CONTENT_FILMS_SEARCH=http://api:8000/api/v1/films/search
-      - CONTENT_FILM_GET=http://api:8000/api/v1/films/
+    env_file:
+      - ./.env.assist
     expose:
       - 8000
     healthcheck:
