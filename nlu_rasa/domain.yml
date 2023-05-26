@@ -1,0 +1,14 @@
+version: "3.1"
+
+intents:
+#  - film_length
+#  - film_director
+
+entities:
+#  - film
+
+responses:                                  # domain.yml
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
