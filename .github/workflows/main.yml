@@ -10,9 +10,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - uses: erpheus/private-submodule-checkout@v1
+      - uses: actions/checkout@v3
         with:
-          deployment_key: ${{ secrets.SUBMODULE_ASYNCAPI }}
+          ssh-key: |
+             ${{ secrets.SUBMODULE_ASYNCAPI }}
+             ${{ secrets.SUBMODULE_ETL_MOVIES }}
+          submodules: 'recursive'
 
