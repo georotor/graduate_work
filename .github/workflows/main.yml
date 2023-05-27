@@ -12,11 +12,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Submodule Checkout
-        # You may pin to the exact commit or the version.
-        # uses: jwsi/submodule-checkout@428791ee676835d4c6cb9998b38977c5c89fba46
-        uses: jwsi/submodule-checkout@v1
+      - uses: erpheus/private-submodule-checkout@v1
         with:
-          # SSH private key for private submodule access
-          ssh-key: |
-             '${{ secrets.SUBMODULE_ASYNCAPI }}'
+          deployment_key: ${{ secrets.SUBMODULE_ASYNCAPI }}
+
