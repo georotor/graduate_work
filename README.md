@@ -1,5 +1,7 @@
 # Ассистент
 
+[![CI](https://github.com/georotor/graduate_work/actions/workflows/tests.yml/badge.svg)](https://github.com/georotor/graduate_work/actions/workflows/tests.yml)
+
 https://github.com/georotor/graduate_work
 
 Сервис интеграции между сервисом поиска фильмов и голосовыми помощниками `Алиса` и `Маруся`.
@@ -38,6 +40,5 @@ https://github.com/georotor/graduate_work
 
 ## Тестирование
 ```
-cd assistant/src/tests/functional
 docker-compose -f assistant/src/tests/functional/docker-compose.yml up --build tests
 ```
