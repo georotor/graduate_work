@@ -41,15 +41,12 @@ class IntentParse(AbstractIntents):
                 async with client.post(url, json=json) as response:
                     if response.status == HTTPStatus.OK:
                         nlu_data = await response.json()
-                        logger.info("Get data from NLU {0}".format(nlu_data))
+                        logger.info("Get data from NLU %s", nlu_data)
                         return nlu_data
 
-                    logger.error("Not get data from NLU for command {0}, {1}".format(
-                        json,
-                        await response.text()
-                    ))
+                    logger.error("Not get data from NLU for command %s, %s", json, await response.text())
             except aiohttp.ClientError as e:
-                logger.error("NLU error: {0}".format(e))
+                logger.error("NLU error: %s", e)
 
         return None
 

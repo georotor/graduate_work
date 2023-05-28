@@ -79,18 +79,18 @@ class Welcome(BaseDialog):
             film_name = request.state.session.get("film")
 
         if not film_name:
-            logger.error("Not found film name in dialog film_length {0}".format(request))
+            logger.error("Not found film name in dialog film_length %s", request)
             return await self.error(request)
 
-        logger.info("Find film name {0} in request {1}".format(film_name, request))
+        logger.info("Find film name %s in request %s", film_name, request)
 
         film_data = await self.content.get_film(film_name)
         if not film_data:
-            logger.warning("Not found film: {0}".format(film_name))
+            logger.warning("Not found film: %s", film_name)
             return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
 
         if not bool(film_data.length):
-            logger.warning("Not found length for film {0} in data {1}".format(film_name, film_data))
+            logger.warning("Not found length for film %s in data %s", film_name, film_data)
             return await self.make_response(
                 request=request,
                 text=Message.FILM_NOT_DATA.format(film_data.title),
@@ -130,16 +130,16 @@ class Welcome(BaseDialog):
             film_name = request.state.session.get("film")
 
         if not film_name:
-            logger.error("Not found film name in dialog film_director {0}".format(request))
+            logger.error("Not found film name in dialog film_director %s", request)
             return await self.error(request)
 
         film_data = await self.content.get_film(film_name)
         if not film_data:
-            logger.warning("Not found film: {0}".format(film_name))
+            logger.warning("Not found film: %s", film_name)
             return await self.make_response(request=request, text=Message.FILM_NOT_FOUND.format(film_name))
 
         if not film_data.directors:
-            logger.warning("Not found directors for film {0} in data {1}".format(film_name, film_data))
+            logger.warning("Not found directors for film %s in data %s", film_name, film_data)
             return await self.make_response(
                 request=request,
                 text=Message.FILM_NOT_DATA.format(film_data.title),

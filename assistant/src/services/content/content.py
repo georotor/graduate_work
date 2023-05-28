@@ -37,7 +37,7 @@ class Content(AbstractContent):
         if http_result and http_result.status == HTTPStatus.OK:
             return Film(**http_result.body)
 
-        logger.error("Error get film {0} {1}".format(name, http_result))
+        logger.error("Error get film %s %s", name, http_result)
         return None
 
     async def search_films(self, name: str) -> list[dict]:
@@ -46,7 +46,7 @@ class Content(AbstractContent):
         if http_result and http_result.status == HTTPStatus.OK:
             return http_result.body.get("results", [])
 
-        logger.error("Error search films {0} {1}".format(name, http_result))
+        logger.error("Error search films %s %s", name, http_result)
         return []
 
     async def fetch_data(self, url: str, params: dict | None = None,
@@ -69,15 +69,13 @@ class Content(AbstractContent):
         async with aiohttp.ClientSession() as client:
             try:
                 async with client.request(method, url, params=params, json=json) as response:
-                    logger.info("HTTP {0} request: url={1} params={2} json={3}".format(
-                        method, url, params, json
-                    ))
+                    logger.info("HTTP %s request: url=%s params=%s json=%s", method, url, params, json)
                     return {
                         "body": await response.json(),
                         "status": response.status,
                     }
             except aiohttp.ClientError as e:
-                logger.error("Async API error: {0}".format(e))
+                logger.error("Async API error: %s", e)
 
         return None
 
