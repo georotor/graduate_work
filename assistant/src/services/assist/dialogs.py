@@ -146,12 +146,14 @@ class Welcome(BaseDialog):
                 state={"film": film_name},
             )
 
-        names = [film.name for film in film_data.directors]
+        names_directors = [film.name for film in film_data.directors]
 
-        text = Message.FILM_DIRECTOR.format(film_data.title, names[0])
-        if len(names) > 1:
-            names_text = "{0} и {1}".format(", ".join(names[0:-1]), names[-1])
-            text = Message.FILM_DIRECTORS.format(film_data.title, names_text)
+        text = Message.FILM_ONE_DIRECTOR.format(film_data.title, names_directors[0])
+        if len(names_directors) > 1:
+            text = Message.FILM_SOME_DIRECTORS.format(
+                film_data.title,
+                "{0} и {1}".format(", ".join(names_directors[0:-1]), names_directors[-1])
+            )
 
         return await self.make_response(
             request=request,

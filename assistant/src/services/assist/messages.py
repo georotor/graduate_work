@@ -20,9 +20,9 @@ class Message:
     FILM_LENGTH = """
     '{0}' длится {1}.
     """
-    FILM_DIRECTOR = """
+    FILM_ONE_DIRECTOR = """
     '{0}' режиссировал {1}.
     """
-    FILM_DIRECTORS = """
+    FILM_SOME_DIRECTORS = """
     '{0}' режиссировали {1}.
     """
