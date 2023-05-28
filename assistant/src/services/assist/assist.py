@@ -22,15 +22,15 @@ class Assist(AbstractAssist):
 
     async def handler(self, request: AssistRequest) -> AssistResponse:
         """Обработка входящего сообщения от ассистента."""
-        logger.info("Get request {0}".format(request))
+        logger.info("Get request %s", request)
 
         await self._get_intent(request)
         current_dialog = request.state.session.get("dialog", "Welcome")
-        logger.info("Dialog {0}".format(current_dialog))
+        logger.info("Dialog %s", current_dialog)
 
         dialog = dialogs.get(current_dialog)(content=self.content)
         response = await dialog.handler(request)
-        logger.info("Send response {0}".format(response))
+        logger.info("Send response %s", response)
 
         return response
 
