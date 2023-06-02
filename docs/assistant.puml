@@ -1,0 +1,37 @@
+@startuml
+scale 1.5
+skinparam sequence {
+ArrowColor #0162C0
+ActorBorderColor #0162C0
+LifeLineBorderColor #0162C0
+LifeLineBackgroundColor #A9DCDF
+ArrowFontSize 16
+
+ParticipantBorderColor #0162C0
+ParticipantBackgroundColor #0162C0
+ParticipantFontSize 17
+ParticipantFontColor #FFF
+}
+
+
+Client -> Assistant: Запрос
+activate Assistant
+
+Assistant -> Intents: Выделение намерения\nи сущностей
+Intents --> Assistant
+
+Assistant -> Assistant: Поиск диалога
+Assistant -> Dialogs: Обработка намерения в диалоге
+activate Dialogs
+
+Dialogs -> Dialogs: Проверка намерения
+Dialogs -> AsyncAPI: Запрос данных
+AsyncAPI --> Dialogs
+Dialogs -> Dialogs: Формирование ответа
+
+Dialogs --> Assistant
+deactivate Dialogs
+
+Assistant --> Client
+deactivate Assistant
+@enduml
