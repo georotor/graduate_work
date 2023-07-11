@@ -1,8 +1,5 @@
-# Ассистент
-
-[![CI](https://github.com/georotor/graduate_work/actions/workflows/tests.yml/badge.svg)](https://github.com/georotor/graduate_work/actions/workflows/tests.yml)
-
-https://github.com/georotor/graduate_work
+# Movies: Ассистент
+[![CI](https://github.com/georotor/movies_assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/georotor/movies_assistant/actions/workflows/tests.yml)
 
 Сервис интеграции между сервисом поиска фильмов и голосовыми помощниками `Алиса` и `Маруся`.
 
@@ -12,18 +9,18 @@ https://github.com/georotor/graduate_work
 - Поиск информации по запрашиваемому кинопроизведению  
 
 ## Архитектура
-![Архитектура](https://github.com/georotor/graduate_work/blob/main/docs/schema.png?raw=true)
+![Архитектура](https://github.com/georotor/movies_assistant/blob/main/docs/schema.png?raw=true)
 
 
 ## Компоненты сервиса
-- [API обработки входящих запросов](https://github.com/georotor/graduate_work/tree/main/assistant)
-- [Сервис выделения намерений и сущностей](https://github.com/georotor/graduate_work/tree/main/nlu_rasa)
-- [API поиска информации по кинопроизведению](https://github.com/georotor/async_api)
-- [ETL заполнения поисковой БД](https://github.com/georotor/etl_movies)
+- [API обработки входящих запросов](https://github.com/georotor/movies_assistant/tree/main/assistant)
+- [Сервис выделения намерений и сущностей](https://github.com/georotor/movies_assistant/tree/main/nlu_rasa)
+- [API поиска информации по кинопроизведению](https://github.com/georotor/movies_async_api)
+- [ETL заполнения поисковой БД](https://github.com/georotor/movies_etl)
 
 ## Запуск сервиса
 
-`git clone --recurse-submodules git@github.com:georotor/graduate_work.git`
+`git clone --recurse-submodules git@github.com:georotor/movies_assistant.git`
 
 Для запуска потребуется 3 файла с переменными окружения:
 
